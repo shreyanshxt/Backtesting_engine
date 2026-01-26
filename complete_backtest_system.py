@@ -376,6 +376,8 @@ class Portfolio(object):
             fill_dir = -1
         
         fill_cost = self.bars.get_latest_bar_value(fill.symbol, 'close')
+        slippage = 0.0005  # 0.05% slippage
+        fill_cost = fill_cost * (1 + slippage)
         cost = fill_dir * fill_cost * fill.quantity
         
         self.current_holdings[fill.symbol] += cost
