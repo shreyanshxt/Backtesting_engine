@@ -104,7 +104,25 @@ Max Drawdown: 12.5%
 ...
 ```
 
-## 📈 Supported Strategies
+## � Example Results
+
+Here's an example backtest run using the **Momentum Strategy** on RELIANCE.NS (2020-2023):
+
+### Performance Visualizations
+![Equity and Drawdown Curves](equity_drawdown_curves.png)
+
+### Backtest Statistics
+![Backtest Results](backtest_results.png)
+
+**Key Metrics:**
+- **Total Return**: 196.02%
+- **CAGR**: 31.24%
+- **Sharpe Ratio**: 0.86
+- **Max Drawdown**: -36.29%
+- **Signals Generated**: 63
+- **Commission Paid**: ₹63.0
+
+## �📈 Supported Strategies
 You can switch strategies in `complete_backtest_system.py` by importing from `active_strategies.py`:
 
 ```python
