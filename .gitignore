@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+.venv/
+venv/
+env/
+.env
+
+# System/Venv directories in root (bad practice but handling it)
+lib/
+bin/
+include/
+share/
+etc/
+
+# Data
+data/
+*.csv
+
+# IDEs
+.vscode/
+.idea/
+.DS_Store
