@@ -6,7 +6,30 @@ These strategies generate MANY more trades than Buy & Hold
 """
 
 import numpy as np
-from complete_backtest_system import Strategy, SignalEvent
+from complete_backtest_system import Strategy, SignalEvent, AlphaModel
+
+
+# =============================================================================
+# 0. SAMPLE ALPHA MODEL
+# =============================================================================
+
+class SMAAlphaModel(AlphaModel):
+    """Simple SMA Alpha Model."""
+    def __init__(self, bars, short_window=50, long_window=200):
+        super(SMAAlphaModel, self).__init__(bars)
+        self.short_window = short_window
+        self.long_window = long_window
+
+    def generate_alpha(self, symbol):
+        bars = self.bars.get_latest_bars(symbol, N=self.long_window)
+        if bars is not None and len(bars) >= self.long_window:
+            close_prices = np.array([b[1].close for b in bars])
+            short_ma = np.mean(close_prices[-self.short_window:])
+            long_ma = np.mean(close_prices[-self.long_window:])
+            
+            if short_ma > long_ma: return 1.0
+            if short_ma < long_ma: return -1.0
+        return 0.0
 
 
 # =============================================================================
@@ -22,18 +45,8 @@ class MovingAverageCrossStrategy(Strategy):
     This generates MANY more trades than Buy & Hold!
     """
     
-    def __init__(self, bars, events, short_window=50, long_window=200):
-        """
-        Parameters:
-        -----------
-        short_window : int
-            Short moving average period (default: 50 days)
-        long_window : int
-            Long moving average period (default: 200 days)
-        """
-        self.bars = bars
-        self.symbol_list = self.bars.symbol_list
-        self.events = events
+    def __init__(self, bars, events, short_window=50, long_window=200, **kwargs):
+        super(MovingAverageCrossStrategy, self).__init__(bars, events, **kwargs)
         self.short_window = short_window
         self.long_window = long_window
         
@@ -93,18 +106,8 @@ class MeanReversionStrategy(Strategy):
     Generates LOTS of trades!
     """
     
-    def __init__(self, bars, events, period=20, num_std=2):
-        """
-        Parameters:
-        -----------
-        period : int
-            Period for Bollinger Bands (default: 20)
-        num_std : float
-            Number of standard deviations (default: 2)
-        """
-        self.bars = bars
-        self.symbol_list = self.bars.symbol_list
-        self.events = events
+    def __init__(self, bars, events, period=20, num_std=2, **kwargs):
+        super(MeanReversionStrategy, self).__init__(bars, events, **kwargs)
         self.period = period
         self.num_std = num_std
         self.bought = self._calculate_initial_bought()
@@ -161,18 +164,8 @@ class MomentumStrategy(Strategy):
     Very active strategy!
     """
     
-    def __init__(self, bars, events, lookback=10, threshold=0.02):
-        """
-        Parameters:
-        -----------
-        lookback : int
-            Lookback period for momentum calculation (default: 10)
-        threshold : float
-            Minimum momentum threshold to trigger signal (default: 2%)
-        """
-        self.bars = bars
-        self.symbol_list = self.bars.symbol_list
-        self.events = events
+    def __init__(self, bars, events, lookback=10, threshold=0.02, **kwargs):
+        super(MomentumStrategy, self).__init__(bars, events, **kwargs)
         self.lookback = lookback
         self.threshold = threshold
         self.bought = self._calculate_initial_bought()
@@ -224,20 +217,8 @@ class RSIStrategy(Strategy):
     Good for ranging markets!
     """
     
-    def __init__(self, bars, events, period=14, oversold=30, overbought=70):
-        """
-        Parameters:
-        -----------
-        period : int
-            RSI period (default: 14)
-        oversold : float
-            Oversold threshold (default: 30)
-        overbought : float
-            Overbought threshold (default: 70)
-        """
-        self.bars = bars
-        self.symbol_list = self.bars.symbol_list
-        self.events = events
+    def __init__(self, bars, events, period=14, oversold=30, overbought=70, **kwargs):
+        super(RSIStrategy, self).__init__(bars, events, **kwargs)
         self.period = period
         self.oversold = oversold
         self.overbought = overbought
@@ -302,16 +283,8 @@ class RebalancingStrategy(Strategy):
     Guaranteed number of trades!
     """
     
-    def __init__(self, bars, events, rebalance_days=30):
-        """
-        Parameters:
-        -----------
-        rebalance_days : int
-            Rebalance every N days (default: 30)
-        """
-        self.bars = bars
-        self.symbol_list = self.bars.symbol_list
-        self.events = events
+    def __init__(self, bars, events, rebalance_days=30, **kwargs):
+        super(RebalancingStrategy, self).__init__(bars, events, **kwargs)
         self.rebalance_days = rebalance_days
         self.last_rebalance = {}
         self.day_counter = 0
@@ -339,6 +312,81 @@ class RebalancingStrategy(Strategy):
                         self.events.put(signal_long)
                         
                         self.last_rebalance[symbol] = self.day_counter
+
+
+# =============================================================================
+# 6. MULTI-STRATEGY RUNNER (With Regime Gating)
+# =============================================================================
+
+class MultiStrategyRunner(Strategy):
+    """
+    A strategy that coordinates multiple sub-strategies and gates their signals
+    based on the current market regime.
+    
+    Usage:
+        runner = MultiStrategyRunner(bars, events, regime_detector)
+        runner.add_strategy(MomentumStrategy(bars, events), regimes=['TRENDING'])
+        runner.add_strategy(MeanReversionStrategy(bars, events), regimes=['RANGING'])
+    """
+    
+    def __init__(self, bars, events, regime_detector=None):
+        super(MultiStrategyRunner, self).__init__(bars, events)
+        self.regime_detector = regime_detector
+        self.strategies = []  # List of (strategy_instance, allowed_regimes)
+        
+    def add_strategy(self, strategy_instance, regimes=None):
+        """
+        Add a strategy to the runner.
+        regimes: List of regime labels (e.g. ['TRENDING', 'RANGING']) where this strategy is active.
+                 If None, the strategy is always active.
+        """
+        self.strategies.append((strategy_instance, regimes))
+        
+    def calculate_signals(self, event):
+        """Forward market events to sub-strategies based on current regime."""
+        if event.type == 'MARKET':
+            # Intercept signals from sub-strategies by providing a local dummy queue
+            import queue
+            original_events_queue = self.events
+            
+            for strategy, allowed_regimes in self.strategies:
+                # 1. Determine active regime for each symbol if detector exists
+                # Note: This is an optimization; we check regime per symbol if needed.
+                # In this multi-strategy implementation, we wrap the events queue 
+                # to filter signals emitted by sub-strategies.
+                
+                # Mock the events queue for the sub-strategy to intercept its signals
+                temp_queue = queue.Queue()
+                strategy.events = temp_queue
+                
+                # Let the sub-strategy calculate signals
+                strategy.calculate_signals(event)
+                
+                # Pull signals from temp_queue and filter them
+                while not temp_queue.empty():
+                    signal = temp_queue.get()
+                    
+                    if signal.type == 'SIGNAL':
+                        # EXIT signals are always allowed for safety
+                        if signal.signal_type == 'EXIT':
+                            original_events_queue.put(signal)
+                            continue
+                            
+                        # Gates signals based on regime
+                        if self.regime_detector and allowed_regimes:
+                            current_regime = self.regime_detector.detect(signal.symbol)
+                            if current_regime in allowed_regimes:
+                                print(f"[MultiStrategy] Emitting {signal.signal_type} for {signal.symbol} (Regime: {current_regime})")
+                                original_events_queue.put(signal)
+                            else:
+                                # Logic silenced because regime does not match
+                                pass
+                        else:
+                            # No detector or no specific regimes defined -> Always active
+                            original_events_queue.put(signal)
+                
+                # Restore original queue just in case
+                strategy.events = original_events_queue
 
 
 # =============================================================================
