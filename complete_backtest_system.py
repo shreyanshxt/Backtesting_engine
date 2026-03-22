@@ -1290,8 +1290,46 @@ class Backtest(object):
         Returns a JSON-serializable dictionary of backtest results.
         Suitable for web API responses.
         """
-        stats_list = self.portfolio.output_summary_stats()
-        stats_dict = {k: v for k, v in stats_list}
+        from riskstats import PerformanceStats
+        
+        # Use full advanced stats if available
+        if hasattr(self.portfolio, 'equity_curve') and self.portfolio.equity_curve is not None and not self.portfolio.equity_curve.empty:
+            adv_stats = PerformanceStats(
+                equity_df=self.portfolio.equity_curve,
+                cash_flows=self.portfolio.cash_flows,
+                closed_trades=self.portfolio.closed_trades
+            )
+            stats_dict = adv_stats.summary()
+        else:
+            stats_list = self.portfolio.output_summary_stats()
+            stats_dict = {k: v for k, v in stats_list}
+            
+        # Dynamically inject Final Technical Indicators (RSI, MACD)
+        try:
+            symbol = self.symbol_list[0]
+            bars_list = self.data_handler.latest_symbol_data.get(symbol, [])
+            if len(bars_list) > 30:
+                closes = pd.Series([getattr(b[1], 'close') for b in bars_list])
+                
+                # RSI 14
+                delta = closes.diff()
+                up = delta.clip(lower=0)
+                down = -1 * delta.clip(upper=0)
+                ema_up = up.ewm(com=13, adjust=False).mean()
+                ema_down = down.ewm(com=13, adjust=False).mean()
+                rs = ema_up / ema_down
+                rsi = 100 - (100 / (1 + rs))
+                
+                # MACD
+                exp1 = closes.ewm(span=12, adjust=False).mean()
+                exp2 = closes.ewm(span=26, adjust=False).mean()
+                macd = exp1 - exp2
+                
+                stats_dict['Final RSI (14)'] = round(float(rsi.iloc[-1]), 2)
+                stats_dict['Final MACD'] = round(float(macd.iloc[-1]), 2)
+        except Exception as e:
+            pass # Keep it robust if dataframe sizes are too small
+
         
         # Prepare equity curve for JSON (limit to last 500 points for performance)
         equity_curve = self.portfolio.equity_curve.tail(500)
@@ -1447,8 +1485,9 @@ if __name__ == "__main__":
     """)
     
     # Configuration
-    csv_dir = '/Users/shreyanshsingh/mp_env/Backtesting/data'  # UPDATE THIS PATH
-    symbol_list = ['RELIANCE.NS', 'TCS.NS']  # MULTI-ASSET SUPPORT
+    import os
+    csv_dir = os.path.join(os.getcwd(), 'data')  # Corrected path
+    symbol_list = ['NVDA']  # We use NVDA because that data exists locally
 
     initial_capital = 50000.0
     heartbeat = 0.0  # 0 for max speed

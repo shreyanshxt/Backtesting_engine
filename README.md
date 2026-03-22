@@ -3,22 +3,29 @@
 A professional-grade, event-driven backtesting system for algorithmic trading. Now with **Market Regime Detection**, **Multi-Strategy Coordination**, and a **Modern Web Dashboard**.
 
 ## 📂 Project Structure
-- `complete_backtest_system.py`: The core event-driven engine with JSON export.
+- `complete_backtest_system.py`: The core event-driven engine.
 - `active_strategies.py`: Library of active trading strategies including `MultiStrategyRunner`.
-- `run_advanced_backtest.py`: [NEW] Demo of regime-aware multi-strategy execution.
-- `backtest_api.py`: [UPDATED] FastAPI bridge serving engine results to the web.
-- `dashboard/`: [NEW] Premium Vite + React dashboard for visual analysis.
+- `run_advanced_backtest.py`: Demo of regime-aware multi-strategy execution.
+- `run_active_backtest.py`: Comprehensive test runner evaluating all active strategies.
+- `riskstats.py`: Advanced mathematical library for performance metrics (CAGR, Calmar, Sortino).
+- `backtest_api.py`: FastAPI bridge serving engine results to the web.
+- `dashboard/`: Premium Vite + React dashboard for visual analysis (Dynamic KPI Grid & Custom Code Editor).
 - `data/`: Historical CSV data storage.
 
 ## 🛠️ Installation & Setup
 1. **Environment**:
+   The engine MUST be run using its dedicated virtual environment:
    ```bash
    source .venv/bin/activate
-   pip install -r requirements.txt
+   # OR use the executable directly: .venv/bin/python3
    ```
-2. **Run Advanced Engine**:
+2. **Run the Individual Strategy Evaluation Suite**:
    ```bash
-   python run_advanced_backtest.py
+   .venv/bin/python3 run_active_backtest.py
+   ```
+3. **Run the Advanced Regime-Gated Multi-Strategy**:
+   ```bash
+   .venv/bin/python3 run_advanced_backtest.py
    ```
 3. **Launch Dashboard**:
    ```bash
@@ -26,6 +33,9 @@ A professional-grade, event-driven backtesting system for algorithmic trading. N
    npm install
    npm run dev
    ```
+
+## 📸 Dashboard Demonstration
+![Dashboard Interaction Demo](./assets/dashboard_demo.webp)
 
 ## 📊 New Features
 ### 1. Market Regime Detection
