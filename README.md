@@ -1,23 +1,38 @@
 # 🚀 Advanced Event-Driven Backtesting Engine v2.0
 
-A professional-grade, event-driven backtesting system for algorithmic trading. Now with **Dynamic Stock Data**, **Live Strategy Editor**, and a **Modern Web Dashboard**.
+A professional-grade, event-driven backtesting system for algorithmic trading.## 🚀 Core Features & Capabilities
 
-## 📊 New Features
+### ⚡ Event-Driven Engine
+- **Queue-Based Architecture**: High-performance, asynchronous event loop (`BarEvent` → `SignalEvent` → `OrderEvent` → `FillEvent`).
+- **Zero Look-Ahead Bias**: Strictly processes data bar-by-bar to ensure realistic simulation.
+- **Micro-Slippage Modelling**: Accounts for market spreads and execution delays.
 
-### 1. 🌍 Dynamic Stock Data (yfinance)
-The engine is no longer static. Use the dashboard to backtest **any ticker in the world** (e.g., `AAPL`, `TSLA`, `RELIANCE.NS`, `BTC-USD`). The system automatically downloads, formats, and caches historical data in real-time.
+### 🧠 Intelligent Strategies
+- **Multi-Strategy Runner**: Coordinate multiple algorithms with logic-based gating.
+- **Market Regime Detection**: Built-in ADX/ATR models to identify `TRENDING`, `RANGING`, or `VOLATILE` regimes.
+- **Built-in Library**:
+  - `Momentum Alpha`: Trend-following with volatility adjustments.
+  - `Mean Reversion`: Reversion logic using Bollinger Bands.
+  - `RSI/MACD`: Industry-standard technical oscillators.
+  - `ML-Ready`: Extensible `AlphaModel` class for machine learning integrations.
 
-### 2. ✍️ Live Strategy Editor
-A dedicated workspace for strategy developers. Use the **Custom Strategy** view to write high-frequency logic directly in the browser with a comprehensive variable reference guide.
+### 🛡️ Enterprise Risk Management
+- **Dynamic Risk Manager**: Per-trade Stop-Loss and Take-Profit execution.
+- **Leverage Multiplier**: User-defined leverage (up to 10x) with real-time margin tracking.
+- **Drawdown Protection**: Global portfolio drawdown caps to prevent "blown accounts".
+- **Execution Cost Modeling**: Custom commission tiers (0% to 1.0%) per execution.
 
-### 3. 🛡️ Precision Risk Controls
-Fine-tune your edge with interactive sliders:
-- **Leverage Multiplier**: Amplify position sizing (up to 10x).
-- **Stop-Loss & Take-Profit**: Dynamic execution and risk management.
-- **Commission Friction**: Realistic transaction cost modeling.
+### 📊 Professional Analytics
+- **Live Performance Dashboard**: Equity curves vs. Benchmark (SPY).
+- **Monthly Return Heatmaps**: Visual grid of monthly/yearly performance.
+- **Risk Distribution**: Histogram charts of trade profits and losses.
+- **Advanced Metrics**: Integrated `riskstats.py` for CAGR, Sharpe, Sortino, Calmar, and Expectancy.
 
-### 4. 📈 Enhanced Visual Feedback
-Real-time progress bars for data fetching and simulation stages with updated KPIs (Win Rate, Profit Factor, Sharpe Ratio).
+### 🛠️ Interactive Developer Tools
+- **Global Ticker Search**: Search and backtest **any global asset** via real-time `yfinance` integration.
+- **In-Browser IDE**: Write and save custom Python strategies directly in the dashboard.
+- **Parameter Tuning**: Dynamic sliders for instant "what-if" analysis on strategy settings.
+- **Data Caching**: Automated local storage for lightning-fast subsequent runs.
 
 ## 📸 Visual Walkthrough
 
