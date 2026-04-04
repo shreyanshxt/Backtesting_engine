@@ -35,12 +35,39 @@ Real-time progress bars for data fetching and simulation stages with updated KPI
 **Live Strategy Editor**: Integrated development environment with real-time variable references and one-click backtesting.
 ````
 
-## 📂 Project Structure
-- `complete_backtest_system.py`: The core event-driven engine.
-- `active_strategies.py`: Library of active trading strategies.
-- `backtest_api.py`: FastAPI bridge serving engine results to the web.
-- `dashboard/`: Premium Vite + React dashboard for visual analysis.
-- `data/`: Automated historical CSV data storage.
+## ⚙️ Architecture & The Event Loop
+
+The engine utilizes a high-performance **Event-Driven Architecture**, mimicking the asynchronous nature of live trading desks. This ensures zero "look-ahead bias" and realistic execution.
+
+```mermaid
+graph TD
+    A[Data Handler] -->|BarEvent| B(Strategy)
+    B -->|SignalEvent| C(Portfolio)
+    C -->|OrderEvent| D(Execution Handler)
+    D -->|FillEvent| C
+    C -->|Update| E[Performance Tracking]
+```
+
+### Key Components:
+- **`complete_backtest_system.py`**: The central orchestrator managing the event queue (`Queue.Queue`).
+- **`RiskManager`**: Validates all orders against portfolio drawdown and leverage limits before execution.
+- **`SimulatedExecutionHandler`**: Models slippage, spread, and transaction fees (Commission).
+
+## 👩‍💻 Custom Strategy Development
+
+You can write your own strategies directly in the dashboard. Here is a quick reference for the available variables:
+
+| Variable | Description | Example |
+| :--- | :--- | :--- |
+| `pd`, `np` | Standard Python libraries for data analysis. | `df = pd.DataFrame(...)` |
+| `bars` | Access to historical data for all symbols. | `self.bars.get_latest_bars(syn, N=1)` |
+| `events` | The central event queue to push signals. | `self.events.put(SignalEvent(...))` |
+| `Strategy` | The base class your strategy must inherit. | `class MyStrategy(Strategy):` |
+
+### Signal Types:
+- **`LONG`**: Open a new buyer position.
+- **`SHORT`**: Open a new seller position.
+- **`EXIT`**: Close out all active positions for the ticker.
 
 ## 🛠️ Installation & Setup
 
