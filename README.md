@@ -19,8 +19,21 @@ Fine-tune your edge with interactive sliders:
 ### 4. 📈 Enhanced Visual Feedback
 Real-time progress bars for data fetching and simulation stages with updated KPIs (Win Rate, Profit Factor, Sharpe Ratio).
 
-## 📸 Dashboard Preview
-![Dashboard Demo](./assets/dashboard_demo.png)
+## 📸 Visual Walkthrough
+
+````carousel
+![Dashboard Overview](./assets/dashboard_overview.png)
+**Dashboard Overview**: Real-time equity curves, drawdown analysis, and dynamic strategy configuration.
+<!-- slide -->
+![Analytics & Performance](./assets/analytics_main.png)
+**Deep Analytics**: Monthly returns heatmap, return distribution histograms, and advanced risk metrics (Sharpe, Sortino, Calmar).
+<!-- slide -->
+![Trade History](./assets/trade_history.png)
+**Comprehensive Trade Log**: Detailed execution history with P&L tracking, duration, and side-by-side performance metrics.
+<!-- slide -->
+![Strategy IDE](./assets/strategy_editor.png)
+**Live Strategy Editor**: Integrated development environment with real-time variable references and one-click backtesting.
+````
 
 ## 📂 Project Structure
 - `complete_backtest_system.py`: The core event-driven engine.
