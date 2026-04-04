@@ -1,6 +1,8 @@
 # 🚀 Advanced Event-Driven Backtesting Engine v2.0
 
-A professional-grade, event-driven backtesting system for algorithmic trading.## 🚀 Core Features & Capabilities
+A professional-grade, event-driven backtesting system for algorithmic trading. This engine provides a high-fidelity simulation environment with zero look-ahead bias, real-time data fetching, and an interactive modern dashboard.
+
+## 🚀 Core Features & Capabilities
 
 ### ⚡ Event-Driven Engine
 - **Queue-Based Architecture**: High-performance, asynchronous event loop (`BarEvent` → `SignalEvent` → `OrderEvent` → `FillEvent`).
@@ -18,21 +20,21 @@ A professional-grade, event-driven backtesting system for algorithmic trading.##
 
 ### 🛡️ Enterprise Risk Management
 - **Dynamic Risk Manager**: Per-trade Stop-Loss and Take-Profit execution.
-- **Leverage Multiplier**: User-defined leverage (up to 10x) with real-time margin tracking.
-- **Drawdown Protection**: Global portfolio drawdown caps to prevent "blown accounts".
-- **Execution Cost Modeling**: Custom commission tiers (0% to 1.0%) per execution.
+- **Leverage Multiplier**: User-defined leverage (up to 10x) with real-time position scaling.
+- **Drawdown Protection**: Global portfolio drawdown caps to prevent significant losses.
+- **Execution Cost Modeling**: Custom commission tiers (0% to 1.0%) for realistic friction.
 
 ### 📊 Professional Analytics
 - **Live Performance Dashboard**: Equity curves vs. Benchmark (SPY).
 - **Monthly Return Heatmaps**: Visual grid of monthly/yearly performance.
 - **Risk Distribution**: Histogram charts of trade profits and losses.
-- **Advanced Metrics**: Integrated `riskstats.py` for CAGR, Sharpe, Sortino, Calmar, and Expectancy.
+- **Advanced Metrics**: CAGR, Sharpe, Sortino, Calmar, and Expectancy.
 
 ### 🛠️ Interactive Developer Tools
-- **Global Ticker Search**: Search and backtest **any global asset** via real-time `yfinance` integration.
+- **Global Ticker Search**: Backtest **any global asset** via real-time `yfinance` integration.
 - **In-Browser IDE**: Write and save custom Python strategies directly in the dashboard.
 - **Parameter Tuning**: Dynamic sliders for instant "what-if" analysis on strategy settings.
-- **Data Caching**: Automated local storage for lightning-fast subsequent runs.
+- **Automated Data Caching**: Intelligent local storage for lightning-fast subsequent runs.
 
 ## 📸 Visual Walkthrough
 
@@ -41,18 +43,18 @@ A professional-grade, event-driven backtesting system for algorithmic trading.##
 **Dashboard Overview**: Real-time equity curves, drawdown analysis, and dynamic strategy configuration.
 <!-- slide -->
 ![Analytics & Performance](./assets/analytics_main.png)
-**Deep Analytics**: Monthly returns heatmap, return distribution histograms, and advanced risk metrics (Sharpe, Sortino, Calmar).
+**Deep Analytics**: Monthly returns heatmap, return distribution histograms, and advanced risk metrics.
 <!-- slide -->
 ![Trade History](./assets/trade_history.png)
-**Comprehensive Trade Log**: Detailed execution history with P&L tracking, duration, and side-by-side performance metrics.
+**Comprehensive Trade Log**: Detailed execution history with P&L tracking and performance metrics.
 <!-- slide -->
 ![Strategy IDE](./assets/strategy_editor.png)
-**Live Strategy Editor**: Integrated development environment with real-time variable references and one-click backtesting.
+**Live Strategy Editor**: Integrated development environment with real-time variable references.
 ````
 
 ## ⚙️ Architecture & The Event Loop
 
-The engine utilizes a high-performance **Event-Driven Architecture**, mimicking the asynchronous nature of live trading desks. This ensures zero "look-ahead bias" and realistic execution.
+The engine mimics the asynchronous nature of live trading desks. This ensures that every trade is executed only after a "fill" event is confirmed by the simulated broker.
 
 ```mermaid
 graph TD
@@ -63,26 +65,13 @@ graph TD
     C -->|Update| E[Performance Tracking]
 ```
 
-### Key Components:
-- **`complete_backtest_system.py`**: The central orchestrator managing the event queue (`Queue.Queue`).
-- **`RiskManager`**: Validates all orders against portfolio drawdown and leverage limits before execution.
-- **`SimulatedExecutionHandler`**: Models slippage, spread, and transaction fees (Commission).
-
-## 👩‍💻 Custom Strategy Development
-
-You can write your own strategies directly in the dashboard. Here is a quick reference for the available variables:
-
-| Variable | Description | Example |
-| :--- | :--- | :--- |
-| `pd`, `np` | Standard Python libraries for data analysis. | `df = pd.DataFrame(...)` |
-| `bars` | Access to historical data for all symbols. | `self.bars.get_latest_bars(syn, N=1)` |
-| `events` | The central event queue to push signals. | `self.events.put(SignalEvent(...))` |
-| `Strategy` | The base class your strategy must inherit. | `class MyStrategy(Strategy):` |
-
-### Signal Types:
-- **`LONG`**: Open a new buyer position.
-- **`SHORT`**: Open a new seller position.
-- **`EXIT`**: Close out all active positions for the ticker.
+## 📂 Project Structure
+- `complete_backtest_system.py`: The core orchestrator and risk engine.
+- `active_strategies.py`: Professional strategy library and regime sensors.
+- `backtest_api.py`: FastAPI bridge serving high-speed results to the UI.
+- `dashboard/`: Premium Vite + React dashboard.
+- `data/`: Automated historical CSV data storage.
+- `assets/`: UI documentation and gallery resources.
 
 ## 🛠️ Installation & Setup
 
@@ -92,12 +81,12 @@ You can write your own strategies directly in the dashboard. Here is a quick ref
    # OR use: .venv/bin/python3
    ```
 
-2. **Backend API**:
+2. **Launch Backend API**:
    ```bash
    python3 backtest_api.py
    ```
 
-3. **Frontend Dashboard**:
+3. **Launch Frontend Dashboard**:
    ```bash
    cd dashboard
    npm install
