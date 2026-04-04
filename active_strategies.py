@@ -301,10 +301,10 @@ class RebalancingStrategy(Strategy):
                 # Rebalance if enough days have passed
                 if self.day_counter - self.last_rebalance[symbol] >= self.rebalance_days:
                     bars = self.bars.get_latest_bars(symbol, N=1)
-                    if bars is not None and bars != []:
+                    if bars is not None and len(bars) > 0:
                         dt = bars[0][0]
                         
-                        # Simple: Exit and re-enter to simulate rebalancing
+                        # Exit current position and re-enter at target size
                         signal_exit = SignalEvent(1, symbol, dt, 'EXIT', 1.0)
                         self.events.put(signal_exit)
                         
@@ -312,6 +312,52 @@ class RebalancingStrategy(Strategy):
                         self.events.put(signal_long)
                         
                         self.last_rebalance[symbol] = self.day_counter
+
+# =============================================================================
+# 6. MACHINE LEARNING STRATEGY (Model-driven!)
+# =============================================================================
+
+class MLStrategy(Strategy):
+    """
+    Mock ML Strategy that uses technical indicators as features.
+    Predicts next-bar direction and trades accordingly.
+    """
+    
+    def __init__(self, bars, events, threshold=0.6, **kwargs):
+        super(MLStrategy, self).__init__(bars, events, **kwargs)
+        self.threshold = threshold
+        self.bought = dict((s, 'OUT') for s in self.symbol_list)
+        
+    def calculate_signals(self, event):
+        """Generate signals based on a mock ML probability."""
+        if event.type == 'MARKET':
+            for symbol in self.symbol_list:
+                bars = self.bars.get_latest_bars(symbol, N=50)
+                if bars is not None and len(bars) >= 50:
+                    # Mocking a prediction probability using deterministic noise 
+                    # based on price action (simulating a classifier)
+                    close_prices = np.array([b[1].close for b in bars])
+                    returns = np.diff(close_prices) / close_prices[:-1]
+                    
+                    # Simulation: "Model" predicts based on recent volatility and trend
+                    vol = np.std(returns)
+                    trend = np.mean(returns[-5:])
+                    
+                    # Pseudo-probability [0, 1]
+                    prob = 0.5 + (trend / (vol * 10)) if vol > 0 else 0.5
+                    prob = max(0, min(1, prob))
+                    
+                    dt = bars[-1][0]
+                    
+                    if prob > self.threshold:
+                        if self.bought[symbol] == 'OUT':
+                            self.events.put(SignalEvent(1, symbol, dt, 'LONG', 1.0))
+                            self.bought[symbol] = 'LONG'
+                    elif prob < (1 - self.threshold):
+                        if self.bought[symbol] == 'LONG':
+                            self.events.put(SignalEvent(1, symbol, dt, 'EXIT', 1.0))
+                            self.bought[symbol] = 'OUT'
+
 
 
 # =============================================================================
@@ -362,7 +408,6 @@ class MultiStrategyRunner(Strategy):
                 # Let the sub-strategy calculate signals
                 strategy.calculate_signals(event)
                 
-                # Pull signals from temp_queue and filter them
                 while not temp_queue.empty():
                     signal = temp_queue.get()
                     

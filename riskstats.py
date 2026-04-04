@@ -185,11 +185,12 @@ class PerformanceStats:
         trades = self.trade_metrics()
         res.update(trades)
 
-        if "realized_pnl" in self.equity.columns:
-            res["Total Realized PnL"] = round(self.equity["realized_pnl"].iloc[-1], 2)
-        if "commission" in self.equity.columns:
-            res["Total Commissions"] = round(self.equity["commission"].iloc[-1], 2)
-
+        # Sanitize for JSON compliance (No NaN/Inf)
+        for k, v in res.items():
+            if isinstance(v, (float, np.float64, np.float32)):
+                if np.isnan(v) or np.isinf(v):
+                    res[k] = 0.0
+        
         return res
 
 try:

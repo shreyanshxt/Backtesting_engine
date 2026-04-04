@@ -1,49 +1,53 @@
 # 🚀 Advanced Event-Driven Backtesting Engine v2.0
 
-A professional-grade, event-driven backtesting system for algorithmic trading. Now with **Market Regime Detection**, **Multi-Strategy Coordination**, and a **Modern Web Dashboard**.
+A professional-grade, event-driven backtesting system for algorithmic trading. Now with **Dynamic Stock Data**, **Live Strategy Editor**, and a **Modern Web Dashboard**.
+
+## 📊 New Features
+
+### 1. 🌍 Dynamic Stock Data (yfinance)
+The engine is no longer static. Use the dashboard to backtest **any ticker in the world** (e.g., `AAPL`, `TSLA`, `RELIANCE.NS`, `BTC-USD`). The system automatically downloads, formats, and caches historical data in real-time.
+
+### 2. ✍️ Live Strategy Editor
+A dedicated workspace for strategy developers. Use the **Custom Strategy** view to write high-frequency logic directly in the browser with a comprehensive variable reference guide.
+
+### 3. 🛡️ Precision Risk Controls
+Fine-tune your edge with interactive sliders:
+- **Leverage Multiplier**: Amplify position sizing (up to 10x).
+- **Stop-Loss & Take-Profit**: Dynamic execution and risk management.
+- **Commission Friction**: Realistic transaction cost modeling.
+
+### 4. 📈 Enhanced Visual Feedback
+Real-time progress bars for data fetching and simulation stages with updated KPIs (Win Rate, Profit Factor, Sharpe Ratio).
+
+## 📸 Dashboard Preview
+![Dashboard Demo](./assets/dashboard_demo.png)
 
 ## 📂 Project Structure
 - `complete_backtest_system.py`: The core event-driven engine.
-- `active_strategies.py`: Library of active trading strategies including `MultiStrategyRunner`.
-- `run_advanced_backtest.py`: Demo of regime-aware multi-strategy execution.
-- `run_active_backtest.py`: Comprehensive test runner evaluating all active strategies.
-- `riskstats.py`: Advanced mathematical library for performance metrics (CAGR, Calmar, Sortino).
+- `active_strategies.py`: Library of active trading strategies.
 - `backtest_api.py`: FastAPI bridge serving engine results to the web.
-- `dashboard/`: Premium Vite + React dashboard for visual analysis (Dynamic KPI Grid & Custom Code Editor).
-- `data/`: Historical CSV data storage.
+- `dashboard/`: Premium Vite + React dashboard for visual analysis.
+- `data/`: Automated historical CSV data storage.
 
 ## 🛠️ Installation & Setup
-1. **Environment**:
-   The engine MUST be run using its dedicated virtual environment:
+
+1. **Environment Initialization**:
    ```bash
    source .venv/bin/activate
-   # OR use the executable directly: .venv/bin/python3
+   # OR use: .venv/bin/python3
    ```
-2. **Run the Individual Strategy Evaluation Suite**:
+
+2. **Backend API**:
    ```bash
-   .venv/bin/python3 run_active_backtest.py
+   python3 backtest_api.py
    ```
-3. **Run the Advanced Regime-Gated Multi-Strategy**:
-   ```bash
-   .venv/bin/python3 run_advanced_backtest.py
-   ```
-3. **Launch Dashboard**:
+
+3. **Frontend Dashboard**:
    ```bash
    cd dashboard
    npm install
    npm run dev
    ```
-
-## 📸 Dashboard Demonstration
-![Dashboard Interaction Demo](./assets/dashboard_demo.webp)
-
-## 📊 New Features
-### 1. Market Regime Detection
-Automatically identifies `TRENDING`, `RANGING`, and `HIGH_VOL` markets using ADX and ATR metrics.
-### 2. Multi-Strategy Gating
-Runs multiple strategies (e.g., Momentum + Mean Reversion) but only triggers signals when the market regime matches the strategy's optimal conditions.
-### 3. Premium Web Dashboard
-Interactive equity curves, drawdown analysis, and recent execution logs with a modern dark-mode aesthetic.
 
 ---
 *Built for quantitative traders who value realism and automation.*
