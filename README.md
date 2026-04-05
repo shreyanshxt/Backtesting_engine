@@ -4,7 +4,7 @@ A professional-grade, event-driven backtesting system for algorithmic trading. T
 
 ## Core Features & Capabilities
 
-### ⚡ Event-Driven Engine
+### Event-Driven Engine
 - **Queue-Based Architecture**: High-performance, asynchronous event loop (`BarEvent` → `SignalEvent` → `OrderEvent` → `FillEvent`).
 - **Zero Look-Ahead Bias**: Strictly processes data bar-by-bar to ensure realistic simulation.
 - **Micro-Slippage Modelling**: Accounts for market spreads and execution delays.
