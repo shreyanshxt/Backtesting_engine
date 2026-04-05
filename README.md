@@ -38,23 +38,23 @@ A professional-grade, event-driven backtesting system for algorithmic trading. T
 
 ## Visual Walkthrough
 
-### 🏠 Dashboard Overview
+### Dashboard Overview
 Real-time equity curves, drawdown analysis, and dynamic strategy configuration.
 ![Dashboard Overview](./assets/dashboard_overview.png)
 
-### 📊 Deep Analytics & Performance
+### Deep Analytics & Performance
 Monthly returns heatmap, return distribution histograms, and advanced risk metrics.
 ![Analytics & Performance](./assets/analytics_main.png)
 
-### 📜 Comprehensive Trade Log
+### Comprehensive Trade Log
 Detailed execution history with P&L tracking and performance metrics.
 ![Trade History](./assets/trade_history.png)
 
-### ✍️ Live Strategy Editor
+### Live Strategy Editor
 Integrated development environment with real-time variable references.
 ![Strategy IDE](./assets/strategy_editor.png)
 
-### 📉 Combined Performance View
+### Combined Performance View
 A unified view of strategy performance, trade distribution, and monthly heatmaps.
 ![Combined Performance View](./assets/analytics_combined.png)
 
