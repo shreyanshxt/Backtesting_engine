@@ -463,15 +463,14 @@ class RegimeDetector:
         atr = self._atr(bars_list[-self.adx_period:])
         current_price = bars_list[-1][1].close
 
-        # High volatility override (regardless of trend strength)
         vol_ratio = atr / current_price if current_price > 0 else 0
+        regime = 'RANGING'
         if vol_ratio > self.vol_threshold:
-            return 'HIGH_VOL'
-
-        if adx > self.adx_trend_threshold:
-            return 'TRENDING'
-
-        return 'RANGING'
+            regime = 'HIGH_VOL'
+        elif adx > self.adx_trend_threshold:
+            regime = 'TRENDING'
+        
+        return regime
 
         if adx > self.adx_trend_threshold:
             return 'TRENDING'
@@ -688,6 +687,24 @@ class Portfolio(object):
             unrealized = 0.0
             if qty != 0:
                 unrealized = (close_price - self.avg_cost[s]) * qty
+                
+                # Check Stop Loss / Take Profit
+                avg_price = self.avg_cost[s]
+                pnl_pct = (close_price - avg_price) / avg_price if avg_price > 0 else 0
+                if qty < 0:
+                    pnl_pct = -pnl_pct
+                
+                sl_pct = getattr(self.risk_manager, 'stop_loss_pct', 0.0)
+                tp_pct = getattr(self.risk_manager, 'take_profit_pct', 0.0)
+                
+                if sl_pct > 0 and pnl_pct <= -sl_pct:
+                    # Trigger Stop Loss
+                    order = OrderEvent(s, 'MKT', abs(qty), 'SELL' if qty > 0 else 'BUY')
+                    self.events.put(order)
+                elif tp_pct > 0 and pnl_pct >= tp_pct:
+                    # Trigger Take Profit
+                    order = OrderEvent(s, 'MKT', abs(qty), 'SELL' if qty > 0 else 'BUY')
+                    self.events.put(order)
                 
             dh[s] = market_value
             total_market_value += market_value
@@ -958,13 +975,15 @@ class RiskManager(object):
         self.max_drawdown = kwargs.get('max_drawdown', 0.20)      # Default 20%
         self.pos_size_pct = kwargs.get('pos_size_pct', 0.10)      # Default 10% per trade
         self.max_exposure_pct = kwargs.get('max_exposure_pct', 1.0) # Default 100%
+        self.stop_loss_pct = kwargs.get('stop_loss_pct', 0.0)     # 0.0 means disabled
+        self.take_profit_pct = kwargs.get('take_profit_pct', 0.0) # 0.0 means disabled
     
     def calculate_quantity(self, symbol, current_price, equity):
         """Calculates quantity based on current equity and pos_size_pct."""
         import math
         if current_price == 0 or current_price is None or math.isnan(current_price):
             return 0
-        target_value = equity * self.pos_size_pct
+        target_value = equity * self.pos_size_pct * self.max_exposure_pct
         return int(target_value / current_price)
 
     def validate_order(self, order_event, current_holdings, current_positions, latest_prices):
@@ -1325,33 +1344,47 @@ class Backtest(object):
                 exp2 = closes.ewm(span=26, adjust=False).mean()
                 macd = exp1 - exp2
                 
-                stats_dict['Final RSI (14)'] = round(float(rsi.iloc[-1]), 2)
-                stats_dict['Final MACD'] = round(float(macd.iloc[-1]), 2)
+                rsi_val = float(rsi.iloc[-1])
+                macd_val = float(macd.iloc[-1])
+                stats_dict['Final RSI (14)'] = round(rsi_val, 2) if not np.isnan(rsi_val) else 0.0
+                stats_dict['Final MACD'] = round(macd_val, 2) if not np.isnan(macd_val) else 0.0
         except Exception as e:
-            pass # Keep it robust if dataframe sizes are too small
+            print(f"Error calculating technical indicators: {e}")
 
-        
-        # Prepare equity curve for JSON (limit to last 500 points for performance)
-        equity_curve = self.portfolio.equity_curve.tail(500)
-        
+        # Generate chart data
         chart_data = []
+        equity_curve = self.portfolio.equity_curve
         for index, row in equity_curve.iterrows():
+            e_val = float(row['equity_curve'])
+            b_val = float(row['benchmark']) if 'benchmark' in row else None
+            d_val = float(row['drawdown']) if 'drawdown' in row else 0.0
+            
             chart_data.append({
                 "date": index.strftime('%Y-%m-%d'),
-                "equity": float(row['equity_curve']),
-                "benchmark": float(row['benchmark']) if 'benchmark' in row else None,
-                "drawdown": float(row['drawdown']) if 'drawdown' in row else 0.0
+                "equity": e_val if not np.isnan(e_val) else 1.0,
+                "benchmark": b_val if b_val is not None and not np.isnan(b_val) else 1.0,
+                "drawdown": d_val if not np.isnan(d_val) else 0.0
             })
             
         trade_data = []
         for t in self.portfolio.closed_trades[-50:]:  # Last 50 trades
+            pnl_val = float(t['pnl'])
+            pnl_pct_val = float(t.get('pnl_pct', 0.0))
+            duration_val = t.get('duration', 0.0)
+            
+            # Format duration to readable string
+            duration_str = f"{duration_val:.1f}h" if duration_val < 48 else f"{duration_val/24:.1f}d"
+
             trade_data.append({
                 "symbol": t['symbol'],
                 "entry_time": t['entry_time'].strftime('%Y-%m-%d'),
                 "exit_time": t['exit_time'].strftime('%Y-%m-%d'),
-                "pnl": float(t['pnl']),
-                "pnl_pct": float(t.get('pnl_pct', 0.0)),
-                "side": t['side']
+                "entry_price": float(t.get('entry_price', 0.0)),
+                "exit_price": float(t.get('exit_price', 0.0)),
+                "pnl": pnl_val if not (np.isnan(pnl_val) or np.isinf(pnl_val)) else 0.0,
+                "pnl_pct": pnl_pct_val if not (np.isnan(pnl_pct_val) or np.isinf(pnl_pct_val)) else 0.0,
+                "side": t['side'],
+                "duration": duration_str
             })
 
         return {
