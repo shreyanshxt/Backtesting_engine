@@ -52,6 +52,22 @@ A professional-grade, event-driven backtesting system for algorithmic trading. T
 **Live Strategy Editor**: Integrated development environment with real-time variable references.
 ````
 
+## 🧪 Strategy Stress Testing & Customization
+
+The engine is built for deep experimentation. It allows you to move beyond static backtests and perform **Dynamic Sensitivity Analysis**:
+
+### 1. ✍️ Live Strategy Playground
+Don't just use the built-in algos—**write your own**.
+- **In-Browser IDE**: Integrated Python editor for rapid prototyping.
+- **Instant Execution**: One-click "Save & Run" to see your logic's performance on live market data.
+- **Developer Guide**: Comprehensive variable reference guide included in the dashboard.
+
+### 2. 🎛️ Dynamic Parameter Sensitivity
+Perform "What-If" analysis by stress-testing your strategy against realistic market frictions:
+- **Leverage Stress**: See how your strategy behaves at 1x vs 10x leverage (verified position scaling logic).
+- **Commission Erosion**: Simulate how transaction costs and "slippage" eat into your net profit.
+- **Risk Tuning**: Fine-tune individual Stop-Loss and Take-Profit thresholds to find the "Goldilocks" zone for your strategy.
+
 ## ⚙️ Architecture & The Event Loop
 
 The engine mimics the asynchronous nature of live trading desks. This ensures that every trade is executed only after a "fill" event is confirmed by the simulated broker.
