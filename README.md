@@ -50,6 +50,9 @@ A professional-grade, event-driven backtesting system for algorithmic trading. T
 <!-- slide -->
 ![Strategy IDE](./assets/strategy_editor.png)
 **Live Strategy Editor**: Integrated development environment with real-time variable references.
+<!-- slide -->
+![Combined Performance View](./assets/analytics_combined.png)
+**Combined Analytics**: A unified view of strategy performance, trade distribution, and monthly heatmaps.
 ````
 
 ## 🧪 Strategy Stress Testing & Customization
