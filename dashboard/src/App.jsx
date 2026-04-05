@@ -390,7 +390,7 @@ function Sidebar({ active, setActive }) {
             <Activity size={16} color="#fff" />
           </div>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: C.text, letterSpacing: "-0.02em" }}>Antigravity</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.text, letterSpacing: "-0.02em" }}>NexusQuant</div>
             <div style={{ fontSize: 10, color: C.muted, letterSpacing: "0.08em" }}>BACKTESTING</div>
           </div>
         </div>

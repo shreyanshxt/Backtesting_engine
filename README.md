@@ -1,4 +1,4 @@
-# 🚀 Advanced Event-Driven Backtesting Engine v2.0
+# 🚀 NexusQuant Backtesting Engine v2.0
 
 A professional-grade, event-driven backtesting system for algorithmic trading. This engine provides a high-fidelity simulation environment with zero look-ahead bias, real-time data fetching, and an interactive modern dashboard.
 

@@ -8,6 +8,8 @@ __pycache__/
 venv/
 env/
 .env
+python3.10/
+venv_fixed/
 
 # System/Venv directories in root (bad practice but handling it)
 lib/

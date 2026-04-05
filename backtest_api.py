@@ -28,7 +28,7 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    return {"status": "online", "engine": "Antigravity Backtesting v2.0"}
+    return {"status": "online", "engine": "NexusQuant Backtesting v2.0"}
 
 @app.post("/backtest")
 async def run_backtest(
